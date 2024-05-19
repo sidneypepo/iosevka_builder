@@ -1,0 +1,100 @@
+#+title: README
+#+author: Sidney PEPO
+
+* Iosevka Builder
+A simple script to build (and patch) [[https://typeof.net/Iosevka/][Iosevka]].
+
+** Dependencies
+To run this program, you need to have installed:
+- Git
+
+- NodeJS and NPM
+
+- sed
+
+- ttfautohint
+
+- Wget
+
+- unzip
+
+- FontForge
+
+- Python (3, obviously) and its argparse lib
+
+** Usage
+Before we start, Iosevka Builder need to have an Iosevka config file. In order to get your own, access https://typeof.net/Iosevka/customizer and customize your font features (steps 1 to 3), then save the generated TOML (step 4) to a file (you can name and store it the way you want, but it's recommended to name it as ~private-build-plans.toml~ and place it at root of this project to be auto detected by the script). A ~private-build-plans.toml~ example:
+
+#+begin_src toml
+[buildPlans.Iojetka]
+family = "Iojetka"
+spacing = "normal"
+serifs = "sans"
+noCvSs = true
+exportGlyphNames = false
+
+  [buildPlans.Iojetka.variants]
+  inherits = "ss14"
+
+  [buildPlans.Iojetka.ligations]
+  inherits = "dlig"
+#+end_src
+
+#+begin_quote
+You can find a build made with the above config at *Releases* page, with its respective checksums and signatures.
+#+end_quote
+
+Now, with a custom Iosevka config, Iosevka Builder can be run. The command most of users will use is
+
+#+begin_src sh
+./iosevka_builder.sh -f -q
+#+end_src
+
+or simply
+
+#+begin_src sh
+./iosevka_builder.sh -fq
+#+end_src
+
+that'll quietly (~-q~) perform a full build (~-f~) (i.e., build Iosevka and then patch it with [[https://www.nerdfonts.com][Nerd Fonts]]). If you've saved your custom config file with a non-default name and/or location, *you should* also use ~-c FILE~ to specify your config ~FILE~ path.
+
+Once it's done, the built and patched fonts will be in their own subdirectories of ~font~ directory (the patched one has ~NF~ as directory suffix).
+
+#+begin_quote
+Note: a full build (build + patch) *may take several hours* depending of your hardware, so be patient!
+#+end_quote
+
+The full list of options (and their uses) can be found by running
+
+#+begin_src sh
+./iosevka_builder.sh -h
+#+end_src
+
+** Install built font
+Installation can be made in two ways: *local* and *system-wide*
+
+- Local installation:
+  #+begin_src sh
+mkdir -p ~/.local/share/fonts
+
+cp font/* ~/.local/share/fonts/
+  #+end_src
+
+- System-wide installation:
+  #+begin_src sh
+mkdir -p /usr/share/fonts
+
+cp font/* /usr/share/fonts/
+  #+end_src
+
+#+begin_quote
+Note: system-wide installation requires superuser privileges.
+#+end_quote
+
+** Credits
+This project was only possible thanks to
+- [[https://typeof.net/Iosevka/][Iosevka awesome project]] and its
+
+- [[https://github.com/be5invis/Iosevka][GitHub repository]]
+
+Go check it now! ❤️
