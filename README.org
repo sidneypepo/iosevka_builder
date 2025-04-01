@@ -2,10 +2,18 @@
 #+author: Sidney PEPO
 
 * Iosevka Builder
-A simple script to build (and patch) [[https://typeof.net/Iosevka/][Iosevka]].
+A simple script to build and patch [[https://typeof.net/Iosevka/][Iosevka]].
+
+** Credits
+This project was only possible thanks to
+- *[[https://typeof.net/Iosevka/][Iosevka]]* ([[https://github.com/be5invis/Iosevka][repository]]) and
+
+- *[[https://www.nerdfonts.com][Nerd Fonts]]* ([[https://github.com/ryanoasis/nerd-fonts][repository]])
+
+Go check them *now*! ❤️
 
 ** Dependencies
-To run this program, you need to have installed:
+To run this script, first you need to have installed:
 - Git
 
 - NodeJS and NPM
@@ -21,9 +29,9 @@ To run this program, you need to have installed:
 - FontForge
 
 - Python (3, obviously) and its argparse lib
-
-** Usage
-Before we start, Iosevka Builder need to have an Iosevka config file. In order to get your own, access https://typeof.net/Iosevka/customizer and customize your font features (steps 1 to 3), then save the generated TOML (step 4) to a file (you can name and store it the way you want, but it's recommended to name it as ~private-build-plans.toml~ and place it at root of this project to be auto detected by the script). A ~private-build-plans.toml~ example:
+  
+** Font configuration
+Before we start, Iosevka Builder need an /Iosevka configuration file/. In order to get your own config, access https://typeof.net/Iosevka/customizer and customize your desired font features. This way, a TOML simillar to
 
 #+begin_src toml
 [buildPlans.Iojetka]
@@ -40,11 +48,16 @@ exportGlyphNames = false
   inherits = "dlig"
 #+end_src
 
+will be generated at the bottom of the webpage, so copy and save it to a file. You can store it the way you want, but consider naming as ~private-build-plans.toml~ and placing it at script's root path to avoid any execution errors.
+
 #+begin_quote
-You can find a build made with the above config at *Releases* page, with its respective checksums and signatures.
+Note: a pre-built font made with the above config can be found at *Releases* page, along with its respective checksums and signatures.
 #+end_quote
 
-Now, with a custom Iosevka config, Iosevka Builder can be run. The command most of users will use is
+Now, with a custom Iosevka config, Iosevka Builder can run!
+
+** Basic usage
+The command that most users will look for is
 
 #+begin_src sh
 ./iosevka_builder.sh -f -q
@@ -56,45 +69,134 @@ or simply
 ./iosevka_builder.sh -fq
 #+end_src
 
-that'll quietly (~-q~) perform a full build (~-f~) (i.e., build Iosevka and then patch it with [[https://www.nerdfonts.com][Nerd Fonts]]). If you've saved your custom config file with a non-default name and/or location, *you should* also use ~-c FILE~ to specify your config ~FILE~ path.
-
-Once it's done, the built and patched fonts will be in their own subdirectories of ~font~ directory (the patched one has ~NF~ as directory suffix).
+that'll *quietly* (~-q~) perform a *full font build* (~-f~).
 
 #+begin_quote
-Note: a full build (build + patch) *may take several hours* depending of your hardware, so be patient!
+Note: a /full font build/ means that the script will *build* Iosevka and then *patch* it with [[https://www.nerdfonts.com][Nerd Fonts]]).
+
+Also note that full font builds *WILL take several HOURS long*, so *be patient*!
 #+end_quote
 
-The full list of options (and their uses) can be found by running
+If your Iosevka config is stored in a path other than script's root and/or saved with a name different than ~private-build-plans.toml~, *you must* also use ~-c PATH~ to specify your config file's path.
+
+When build finishes, all font flavors will be stored in separate subdirectories inside the ~font~ directory (the patched one's directory will have a ~NF~ suffix).
+
+For more script related details, its full option list (and use cases) can be found by running
 
 #+begin_src sh
 ./iosevka_builder.sh -h
 #+end_src
 
-** Install built font
-Installation can be made in two ways: *local* and *system-wide*
+** Installation guide
+On Windows, you can install fonts just by selecting all the ~.ttf~ files, right-clicking and then selecting ~Install~.
 
-- Local installation:
-  #+begin_src sh
-mkdir -p ~/.local/share/fonts
-
-cp font/* ~/.local/share/fonts/
-  #+end_src
-
-- System-wide installation:
-  #+begin_src sh
-mkdir -p /usr/share/fonts
-
-cp font/* /usr/share/fonts/
-  #+end_src
+Otherwise, if you're on an Unix-like, installation can be achived in two ways: *local* and *system-wide*. Choose your prefered installation method and run its respective commands (found below) *substituting* ~FONT_NAME~ by the font name and ~HINTING~ by your prefered hinting.
 
 #+begin_quote
-Note: system-wide installation requires superuser privileges.
+Note: system-wide installation *requires* superuser privileges.
 #+end_quote
 
-** Credits
-This project was only possible thanks to
-- [[https://typeof.net/Iosevka/][Iosevka awesome project]] and its
+- Local installation
+  #+begin_src sh
+mkdir -p ~/.local/share/fonts/FONT_NAME
 
-- [[https://github.com/be5invis/Iosevka][GitHub repository]]
+cp font/FONT_NAME/HINTING/* ~/.local/share/fonts/FONT_NAME/
+  #+end_src
 
-Go check it now! ❤️
+- System-wide installation
+  #+begin_src sh
+mkdir -p /usr/share/fonts/FONT_NAME
+
+cp font/FONT_NAME/HINTING/* /usr/share/fonts/FONT_NAME/
+  #+end_src
+
+After that, all font files must be cached, so run
+
+#+begin_src sh
+fc-cache -f
+#+end_src
+
+Now you can to enjoy your /brand new sexy aesthetic font/!
+
+** CSS integration
+If you're doing some web development and just wanna to add your custom Iosevka to your website, that's your lucky day!
+
+By default, Iosevka already generates CSS files containing [[https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face][~font-face~ rules]] for *every built font file*. However, if you run this script with the *patch operation* enabled, it will also generate a patched version of the existing CSS files, just to fit your patched font.
+
+The CSS integration can be done in two ways (choose the most apropriated for your use case):
+
+- Easier, but resource-consuming
+
+  First, copy the directory containing your desired font flavor files and its corresponding CSS to any path reachble by your webpage. Then add
+
+  #+begin_src css
+@import url("path/to/your/font.css");
+  #+end_src
+
+  *at the very beginning* of your webpage's main CSS file. Don't forget to change ~path/to/your/font.css~ by the actual font CSS path.
+
+  *Practical example*: if I have a font called ~Iojetka~ and I wanna to use its unhinted flavor, I should copy both ~TTF~ and ~Iojetka.css~ to an arbitrary path (~assets/fonts/Iojetka~, for this example). Then, at the begin of my webpage's CSS, I should import the ~Iojetka.css~ like this:
+
+  #+begin_src css
+@import url("assets/fonts/Iojetka/Iojetka.css");
+
+/* my other CSS declarations... */
+  #+end_src
+
+  #+begin_quote
+  Note: as this method works by simply [[https://developer.mozilla.org/en-US/docs/Web/CSS/@import][importing CSS files]] into your main CSS, you should avoid using it if you have too many font files, because any requested webpages will also request every single font file, which may consume more computational resources and lead to higher load times.
+  #+end_quote
+
+- Harder, but recommended
+
+  Before anything, choose the *exact* font files you'd like to use and copy them to a path reachble by your webpage, with the *same* hinting directory name.
+
+  Now, open the font's original CSS, copy the ~font-face~ rules related to the choosen font files and put them, or into the webpage's CSS, or in a separate CSS file. For the separate CSS case, don't forget to import it, as shown in the easier method.
+
+  *Practical example*: if I have a font called ~Iojetka~ and I only wanna to use the medium, medium-italic, bold and bold-italic unhinted variants, I should copy ~Iojetka-Medium.ttf~, ~Iojetka-MediumItalic.ttf~, ~Iojetka-Bold.ttf~ and ~Iojetka-BoldItalic.ttf~ to an arbitrary path (~assets/fonts/Iojetka/TTF~, for this example. *Don't forget the ~TTF~ at the end!*). Then I should copy their respective ~font-face~ rules to my webpage's CSS or to a separate CSS file that will be imported. In anyways, I'll get this:
+
+  #+begin_src css
+@font-face {
+	font-family: 'Iojetka Web';
+	font-display: swap;
+	font-weight: 500;
+	font-stretch: normal;
+	font-style: normal;
+	src: url('TTF/Iojetka-Medium.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'Iojetka Web';
+	font-display: swap;
+	font-weight: 500;
+	font-stretch: normal;
+	font-style: italic;
+	src: url('TTF/Iojetka-MediumItalic.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'Iojetka Web';
+	font-display: swap;
+	font-weight: 700;
+	font-stretch: normal;
+	font-style: normal;
+	src: url('TTF/Iojetka-Bold.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'Iojetka Web';
+	font-display: swap;
+	font-weight: 700;
+	font-stretch: normal;
+	font-style: italic;
+	src: url('TTF/Iojetka-BoldItalic.ttf') format('truetype');
+}
+  #+end_src
+
+  #+begin_quote
+  Note: despite the difficulty of manually selecting the font files and rules, one by one, you should consider to always use this method in order to get more lightweight and fast webpages.
+  #+end_quote
+
+#+begin_quote
+Note: both presented CSS integration methods are hint and patch-agnostic, that is, it doesn't matter if your font is or not hinted or patched.
+#+end_quote
